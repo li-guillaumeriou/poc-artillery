@@ -1,0 +1,15 @@
+{
+  "name": "poc-artillery-lux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "artillery": "^1.6.0-29"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "artillery run config.yml"
+  },
+  "author": "Guillaume RIOU <guillaume.riou@logic-immo.com>",
+  "license": "ISC"
+}

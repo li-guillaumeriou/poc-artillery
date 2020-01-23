@@ -1,0 +1,14 @@
+config:
+    target: 'https://refonte.lux-residence.com'
+    phases:
+        - duration: 120
+          arrivalRate: 10
+          rampTo: 50
+          name: "Warm up the application"
+        - duration: 600
+          arrivalRate: 50
+          name: "Sustained max load"
+scenarios:
+    - flow:
+        - get:
+            url: "/fr/vente/immeuble/AQUITAINE/33/BORDEAUX/4954DE42-C8D3-3FA3-77B9-E4391DC99884/"
