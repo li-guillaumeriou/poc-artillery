@@ -4,7 +4,7 @@ This project uses [artillery.io](https://artillery.io/) to run performance tests
 ## Setup
 Install project dependencies
 ```shell
-$ cd /path/to/project
+$ cd /path/to/poc-artillery
 $ npm i
 ```
 
