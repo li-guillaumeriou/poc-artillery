@@ -8,5 +8,5 @@ $ cd poc-artillery-lux
 $ npm i
 ```
 
-## Executing test
-Run `npm test` to execute performance test
+## Executing test and reporting
+Run `./run` to execute performance test and generate a report
