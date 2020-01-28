@@ -1,18 +1,56 @@
 config:
-    payload:
-        path: annonceID.csv
-        fields:
-            - AnnonceID
-    target: 'https://refonte.lux-residence.com'
+    plugins: 
+        expect: {}
+    target: 'https://release-2020-s01.staging.lux-residence.com'
     phases:
-        - duration: 10
-          arrivalRate: 10
-          rampTo: 50
-          name: "Warm up the application"
-        # - duration: 600
-        #   arrivalRate: 50
-        #   name: "Sustained max load"
+        - duration: 1
+          arrivalRate: 1
+    payload:
+        path: "./annonceID.csv"
+        fields:
+            - "AnnonceID"
+        skipHeader: true
+    tls:
+        rejectUnauthorized: false
 scenarios:
     - flow:
         - get:
+            name: "Robot visiting site"
+            headers:
+                User-agent: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
             url: "/fr/vente/immeuble/AQUITAINE/33/BORDEAUX/{{ AnnonceID }}/"
+            capture:
+                regexp: '\{"AdId":"([A-Z0-9\-]+)"'
+                as: "AdIdBot"
+                group: 1
+            expect:
+                - statusCode: 200
+                - equals:
+                    - "{{ AnnonceID }}"
+                    - "{{ AdIdBot }}"
+        - get:
+            name: "User getting a 410"
+            url: "/fr/vente/immeuble/AQUITAINE/33/BORDEAUX/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxx?prerender=1"
+            capture:
+                regexp: '<meta data-react-helmet="true" name="prerender-status-code" content="(\d+)"/>'
+                as: "PreRenderStatus"
+                group: 1
+            expect:
+                - statusCode: 200
+                - equals:
+                    - "{{ PreRenderStatus }}"
+                    - "410"
+        - loop:
+            - get:
+                name: "User browsing on website"
+                url: "/get/offer/{{ AnnonceID }}/"
+                capture:
+                    - json: "$.offer.AdId"
+                      as: AdId
+                expect:
+                    - statusCode: 200
+                    - contentType: json
+                    - equals:
+                        - "{{ AnnonceID }}"
+                        - "{{ AdId }}"
+          count: 4

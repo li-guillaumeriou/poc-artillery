@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "artillery": "^1.6.0-29"
+    "artillery": "^1.6.0-29",
+    "artillery-plugin-expect": "^1.2.1"
   },
   "devDependencies": {},
   "scripts": {

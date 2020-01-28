@@ -1,9 +1,10 @@
 #!/bin/sh
+set -e
 now=$(date +"%Y_%m_%d__%H_%M_%S");
 report_name="artillery_report_${now}"
 
 # execute tests
-npx artillery run -o  "${report_name}.txt" config.yml
+npx artillery run -o "${report_name}.txt" config.yml
 
 # generate report
 npx artillery report "${report_name}.txt" -o "${report_name}.html"
@@ -26,6 +27,6 @@ elif [ "$machine" == "Cygwin" -o "$machine" == "MINGW" ] ; then
     start chrome "${report_name}.html"
 elif [ "$machine" == "Linux" ] ; then
     google-chrome "${report_name}.html"
-else ; then
+else
     echo "Unknown platform : $machine"
 fi
