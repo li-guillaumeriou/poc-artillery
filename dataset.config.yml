@@ -1,0 +1,37 @@
+config:
+  plugins: 
+    expect: {}
+  # target: 'https://api.bellesdemeures.com'
+  target: 'https://bellesdemeures-stage.svc-dignp.com'
+  phases:
+    - duration: 20
+      arrivalRate: 30
+      # rampTo: 50
+  payload:
+    #path: "./liste_id_annonce_global.csv"
+    path: "./annonceID.csv"
+    fields:
+      - "AnnonceID"
+    order: "sequence"
+    skipHeader: true
+  tls:
+    rejectUnauthorized: false
+  http:
+    timeout: 10 
+scenarios:
+  - flow:
+      - get:
+          headers:
+            x-api-key: "XXXXX" # stagging
+          name: "Get Annonce, expect 200 status code and Id Annnoce"
+          url: "/api/1.0/lr/annonce/get?idAnnonce={{ AnnonceID }}"
+          capture:
+            - json: "$.IdAnnonce"
+              as: IdAnnonce
+          expect:
+            - statusCode: 200
+            - equals:
+              - "{{IdAnnonce}}"
+              - "{{ AnnonceID }}"
+
+           

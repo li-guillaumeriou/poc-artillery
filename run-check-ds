@@ -1,0 +1,32 @@
+#!/bin/sh
+set -e
+now=$(date +"%Y_%m_%d__%H_%M_%S");
+report_name="artillery_report_${now}"
+
+# execute tests
+npx artillery run -o "${report_name}.txt" dataset.config.yml
+
+# generate report
+npx artillery report "${report_name}.txt" -o "${report_name}.html"
+
+# open report
+# Check platform
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     machine=Linux;;
+    Darwin*)    machine=Mac;;
+    CYGWIN*)    machine=Cygwin;;
+    MINGW*)     machine=MinGw;;
+    *)          machine="UNKNOWN:${unameOut}"
+esac
+
+# Open browser depending on current platform
+if [ "$machine" == "Mac" ] ; then
+    open -a "Google Chrome" "${report_name}.html"
+elif [ "$machine" == "Cygwin" -o "$machine" == "MINGW" ] ; then
+    start chrome "${report_name}.html"
+elif [ "$machine" == "Linux" ] ; then
+    google-chrome "${report_name}.html"
+else
+    echo "Unknown platform : $machine"
+fi

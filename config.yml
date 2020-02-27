@@ -1,56 +1,83 @@
 config:
-    plugins: 
-        expect: {}
-    target: 'https://release-2020-s01.staging.lux-residence.com'
-    phases:
-        - duration: 1
-          arrivalRate: 1
-    payload:
-        path: "./annonceID.csv"
-        fields:
-            - "AnnonceID"
-        skipHeader: true
-    tls:
-        rejectUnauthorized: false
+  plugins: 
+    expect: {}
+  target: 'https://origin-refonte.lux-residence.com'
+  phases:
+    - duration: 1
+      arrivalRate: 1
+      # rampTo: 50
+  payload:
+    path: "./annonceID.csv"
+    fields:
+      - "AnnonceID"
+    skipHeader: true
+  tls:
+    rejectUnauthorized: false
+  http:
+    timeout: 10      
 scenarios:
-    - flow:
-        - get:
-            name: "Robot visiting site"
-            headers:
-                User-agent: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-            url: "/fr/vente/immeuble/AQUITAINE/33/BORDEAUX/{{ AnnonceID }}/"
-            capture:
-                regexp: '\{"AdId":"([A-Z0-9\-]+)"'
-                as: "AdIdBot"
-                group: 1
-            expect:
-                - statusCode: 200
-                - equals:
-                    - "{{ AnnonceID }}"
-                    - "{{ AdIdBot }}"
-        - get:
-            name: "User getting a 410"
-            url: "/fr/vente/immeuble/AQUITAINE/33/BORDEAUX/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxx?prerender=1"
-            capture:
-                regexp: '<meta data-react-helmet="true" name="prerender-status-code" content="(\d+)"/>'
-                as: "PreRenderStatus"
-                group: 1
-            expect:
-                - statusCode: 200
-                - equals:
-                    - "{{ PreRenderStatus }}"
-                    - "410"
-        - loop:
-            - get:
-                name: "User browsing on website"
-                url: "/get/offer/{{ AnnonceID }}/"
-                capture:
-                    - json: "$.offer.AdId"
-                      as: AdId
-                expect:
-                    - statusCode: 200
-                    - contentType: json
-                    - equals:
-                        - "{{ AnnonceID }}"
-                        - "{{ AdId }}"
-          count: 4
+  - flow:
+      # - get:
+      #     name: "Robot visiting FA page"
+      #     headers:
+      #       User-agent: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+      #     url: "/fr/vente/immeuble/AQUITAINE/33/BORDEAUX/{{ AnnonceID }}/"
+      #     capture:
+      #       regexp: '\{"AdId":"([A-Z0-9\-]+)"'
+      #       as: "AdIdBot"
+      #       group: 1
+      #     expect:
+      #       - statusCode: 200
+      #       - equals:
+      #         - "{{ AnnonceID }}"
+      #         - "{{ AdIdBot }}"
+      # - loop:
+      #   - get:
+      #       name: "User browsing FA pages"
+      #       url: "/get/offer/{{ AnnonceID }}/"
+      #       capture:
+      #         json: "$.offer.AdId"
+      #         as: AdId
+      #       expect:
+      #         - statusCode: 200
+      #         - contentType: json
+      #         - equals:
+      #           - "{{ AnnonceID }}"
+      #           - "{{ AdId }}"
+      #   count: 3
+      - get:
+          name: "Robot getting a 410 status code while visiting FA"
+          url: "/fr/vente/immeuble/AQUITAINE/33/BORDEAUX/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/"
+          headers:
+            User-agent: "Mozilla/5.0 (compatible; googlebot/2.1; +http://www.google.com/bot.html)"
+          capture:
+            regexp: '<meta[^>]+content="(\d+)"[^>]*>'
+            as: "PreRenderStatus"
+            group: 1
+          expect:
+            - statusCode: 200
+            - equals:
+              - "{{ PreRenderStatus }}"
+              - "410"
+      # - post:
+      #     name: "User sending contact form on FA page"
+      #     url: "/contact"
+      #     json:
+      #       lastname: "TRUMP"
+      #       firstname: "Donald"
+      #       phone: "+33 6 12 34 56 78"
+      #       email: "testspir_loadtest@yopmail.com"
+      #       message: "Bonjour, Je suis intéressé(e) par l'annonce ref. 225 que vous proposez sur Lux-Residence.com. Merci de me recontacter afin de me donner plus d'informations."
+      #       lang: "fr"
+      #       TransactionTypeId: 6
+      #       offer: "{{ AnnonceID }}"
+      #       location: "https://origin-refonte.lux-residence.com/fr/vente/immeuble/AQUITAINE/33/BORDEAUX/{{ AnnonceID }}/#contact"
+      #     capture:
+      #       json: '$.error'
+      #       as: post_status
+      #     expect:
+      #       - statusCode: 200
+            # - equals:
+            #   - "{{ post_status }}"
+            #   - "null"
+    
